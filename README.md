@@ -1,6 +1,6 @@
-![AVAssetCacher](https://github.com/wxxsw/GSPlayer/blob/master/ScreenShots/logo.png)
+<img src="https://github.com/supnaobed/AVAssetCacher/blob/master/ScreenShots/logo.png" width="300" height="110" />
 
-<p align="center">
+<p align="left">
 <a href="https://developer.apple.com/swift"><img src="https://img.shields.io/badge/language-swift5-f48041.svg?style=flat"></a>
 <a href="https://developer.apple.com/ios"><img src="https://img.shields.io/badge/platform-iOS10+|macOS-blue.svg?style=flat"></a>
 <a href="http://cocoadocs.org/docsets/GSPlayer"><img src="https://img.shields.io/badge/Cocoapods-compatible-4BC51D.svg?style=flat"></a>
