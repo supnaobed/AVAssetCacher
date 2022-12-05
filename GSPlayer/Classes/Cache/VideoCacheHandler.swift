@@ -11,18 +11,17 @@ import Foundation
 private let packageLength = 1024 * 512
 
 public class VideoCacheHandler {
-    
     private(set) var configuration: VideoCacheConfiguration
-    
+
     private let readFileHandle: FileHandle
     private let writeFileHandle: FileHandle
-    
+
     public init(url: URL) throws {
         let fileManager = FileManager.default
         let filePath = VideoCacheManager.cachedFilePath(for: url)
         let fileURL = URL(fileURLWithPath: filePath)
         let fileDirectory = filePath.deletingLastPathComponent
-        
+
         if !fileManager.fileExists(atPath: fileDirectory) {
             try fileManager.createDirectory(
                 atPath: fileDirectory,
@@ -30,26 +29,26 @@ public class VideoCacheHandler {
                 attributes: nil
             )
         }
-        
+
         if !fileManager.fileExists(atPath: filePath) {
             fileManager.createFile(atPath: filePath, contents: nil, attributes: nil)
         }
-        
+
         configuration = try VideoCacheConfiguration.configuration(for: filePath)
         readFileHandle = try FileHandle(forReadingFrom: fileURL)
         writeFileHandle = try FileHandle(forWritingTo: fileURL)
     }
-    
+
     deinit {
         readFileHandle.closeFile()
         writeFileHandle.closeFile()
     }
-    
+
     func actions(for range: NSRange) -> [VideoCacheAction] {
         guard range.location != NSNotFound else { return [] }
-        
+
         var localActions = [VideoCacheAction]()
-        
+
         for fragment in configuration.fragments {
             let intersection = NSIntersectionRange(range, fragment)
 
@@ -74,19 +73,19 @@ public class VideoCacheHandler {
                 ))
             }
         }
-        
+
         guard localActions.count > 0 else {
             return [VideoCacheAction(actionType: .remote, range: range)]
         }
-        
+
         if let info = configuration.info {
             if range.location >= info.contentLength {
                 return []
             }
         }
-        
+
         var localRemoteActions = [VideoCacheAction]()
-        
+
         for (i, action) in localActions.enumerated() {
             if i == 0 {
                 if range.location < action.range.location {
@@ -111,7 +110,7 @@ public class VideoCacheHandler {
                 }
                 localRemoteActions.append(action)
             }
-            
+
             if i == localActions.count - 1, action.range.upperBound < range.upperBound {
                 localRemoteActions.append(VideoCacheAction(
                     actionType: .remote,
@@ -122,10 +121,10 @@ public class VideoCacheHandler {
                 ))
             }
         }
-        
+
         return localRemoteActions
     }
-    
+
     func cache(data: Data, for range: NSRange) {
         objc_sync_enter(writeFileHandle)
         writeFileHandle.seek(toFileOffset: UInt64(range.location))
@@ -133,15 +132,15 @@ public class VideoCacheHandler {
         configuration.add(fragment: range)
         objc_sync_exit(writeFileHandle)
     }
-    
+
     func cachedData(for range: NSRange) -> Data {
         objc_sync_enter(readFileHandle)
         readFileHandle.seek(toFileOffset: UInt64(range.location))
-        let data = self.readFileHandle.readData(ofLength: range.length)
+        let data = readFileHandle.readData(ofLength: range.length)
         objc_sync_exit(readFileHandle)
         return data
     }
-    
+
     func set(info: VideoInfo) {
         objc_sync_enter(writeFileHandle)
         configuration.info = info
@@ -149,12 +148,11 @@ public class VideoCacheHandler {
         writeFileHandle.synchronizeFile()
         objc_sync_exit(writeFileHandle)
     }
-    
+
     func save() {
         objc_sync_enter(writeFileHandle)
         writeFileHandle.synchronizeFile()
         configuration.save()
         objc_sync_exit(writeFileHandle)
     }
-    
 }

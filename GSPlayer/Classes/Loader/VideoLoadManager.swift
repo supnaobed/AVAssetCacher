@@ -8,22 +8,22 @@
 
 import AVFoundation
 
+protocol VideoLoadManagerDelegate: AnyObject {
+    func videoLoadManager(_ videoLoadManager: VideoLoadManager, didRequestResourceFor url: URL)
+}
+
 public class VideoLoadManager: NSObject {
-    
-    public static let shared = VideoLoadManager()
-    
     public var reportError: ((Error) -> Void)?
-    
+
     public var customHTTPHeaderFields: ((URL) -> [String: String]?)?
-    
+
     private(set) var loaderMap: [URL: VideoLoader] = [:]
-    
+
+    weak var delegate: VideoLoadManagerDelegate?
 }
 
 extension VideoLoadManager: AVAssetResourceLoaderDelegate {
-
-    public func resourceLoader(_ resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
-        
+    public func resourceLoader(_: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
         guard let url = loadingRequest.url else {
             reportError?(NSError(
                 domain: "me.gesen.player.loader",
@@ -32,9 +32,9 @@ extension VideoLoadManager: AVAssetResourceLoaderDelegate {
             ))
             return false
         }
-        
-        VideoPreloadManager.shared.remove(url: url)
-        
+
+        delegate?.videoLoadManager(self, didRequestResourceFor: url)
+
         do {
             if let loader = loaderMap[url] {
                 loader.append(request: loadingRequest)
@@ -50,25 +50,22 @@ extension VideoLoadManager: AVAssetResourceLoaderDelegate {
             return false
         }
     }
-    
-    public func resourceLoader(_ resourceLoader: AVAssetResourceLoader, didCancel loadingRequest: AVAssetResourceLoadingRequest) {
-        
+
+    public func resourceLoader(_: AVAssetResourceLoader, didCancel loadingRequest: AVAssetResourceLoadingRequest) {
         guard let url = loadingRequest.url, let loader = loaderMap[url] else {
             return
         }
-        
+
         loader.remove(request: loadingRequest)
     }
-    
 }
 
 extension VideoLoadManager: VideoLoaderDelegate {
-    
     func loader(_ loader: VideoLoader, didFail error: Error) {
         reportError?(error)
         loaderMap.removeValue(forKey: loader.url)
     }
-    
+
     func loaderDidFinish(_ loader: VideoLoader) {
         loaderMap.removeValue(forKey: loader.url)
     }

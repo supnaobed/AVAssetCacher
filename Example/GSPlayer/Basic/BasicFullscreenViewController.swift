@@ -6,14 +6,13 @@
 //  Copyright © 2019 Gesen. All rights reserved.
 //
 
-import UIKit
 import GSPlayer
+import UIKit
 
 class BasicFullscreenViewController: UIViewController {
-    
-    @IBOutlet weak var closeButton: UIButton!
-    @IBOutlet weak var fullscreenPlayerView: VideoFullscreenPlayerView!
-    
+    @IBOutlet var closeButton: UIButton!
+    @IBOutlet var fullscreenPlayerView: VideoFullscreenPlayerView!
+
     lazy var transitioner: VideoFullscreenTransitioner = {
         loadViewIfNeeded()
         let transition = VideoFullscreenTransitioner()
@@ -25,11 +24,9 @@ class BasicFullscreenViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
     }
 
-    @IBAction func tapClose(_ sender: UIButton) {
+    @IBAction func tapClose(_: UIButton) {
         dismiss(animated: true, completion: nil)
     }
-    
 }

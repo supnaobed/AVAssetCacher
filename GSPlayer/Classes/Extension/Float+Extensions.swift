@@ -9,9 +9,7 @@
 import Foundation
 
 extension Float {
-    
     var double: Double {
-        return Double(self)
+        Double(self)
     }
-    
 }

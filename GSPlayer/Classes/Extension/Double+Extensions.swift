@@ -9,13 +9,11 @@
 import Foundation
 
 extension Double {
-    
     var int: Int {
-        return Int(self)
+        Int(self)
     }
-    
+
     var float: Float {
-        return Float(self)
+        Float(self)
     }
-    
 }

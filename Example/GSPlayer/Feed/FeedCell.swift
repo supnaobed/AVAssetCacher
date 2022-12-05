@@ -9,30 +9,28 @@
 import GSPlayer
 
 class FeedCell: UITableViewCell {
+    @IBOutlet var playerView: VideoPlayerView!
 
-    @IBOutlet weak var playerView: VideoPlayerView!
-    
     private var url: URL!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
-        
     }
-    
+
     override func prepareForReuse() {
         super.prepareForReuse()
         playerView.isHidden = true
     }
-    
+
     func set(url: URL) {
         self.url = url
     }
-    
+
     func play() {
         playerView.play(for: url)
         playerView.isHidden = false
     }
-    
+
     func pause() {
         playerView.pause(reason: .hidden)
     }

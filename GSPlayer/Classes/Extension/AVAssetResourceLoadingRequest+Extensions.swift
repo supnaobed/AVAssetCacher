@@ -9,16 +9,14 @@
 import AVFoundation
 
 extension AVAssetResourceLoadingRequest {
-    
     var url: URL? {
-        let prefix = AVPlayerItem.loaderPrefix
-        
+        let prefix = AVURLAsset.loaderPrefix
+
         guard
             let urlString = request.url?.absoluteString,
             urlString.hasPrefix(prefix)
-            else { return nil }
-        
+        else { return nil }
+
         return urlString.replacingOccurrences(of: prefix, with: "").url
     }
-    
 }
