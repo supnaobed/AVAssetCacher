@@ -9,16 +9,17 @@ import AVKit
 
 public class MediaDownloader {
   private var mediaTasks = [MediaDownloadTask]()
+  private let videoCacheManager: VideoCacheManager
   let loadManager: VideoLoadManager
-  
-  public init() {
-    loadManager = VideoLoadManager()
+
+  public init(cacheDirectoryURL: URL) throws {
+    videoCacheManager = try VideoCacheManager(directory: cacheDirectoryURL)
+    loadManager = VideoLoadManager(videoCacheManager: videoCacheManager)
     loadManager.delegate = self
   }
   
   public func download(url: URL, preloadByteCount: Int) throws -> MediaDownloadTask? {
-    let videoCacheHandler = try VideoCacheHandler(url: url)
-    
+    let videoCacheHandler = try VideoCacheHandler(url: url, cacheManager: videoCacheManager)
     let task = MediaDownloadTask(url: url, preloadByteCount: preloadByteCount, cacheHandler: videoCacheHandler)
     guard !loadManager.loaderMap.keys.contains(url) else {
       return task
@@ -34,14 +35,6 @@ extension MediaDownloader: VideoLoadManagerDelegate {
     let task = mediaTasks.first { $0.url == url }
     task?.cancel()
   }
-}
-
-extension MediaDownloader: VideoDownloaderDelegate {
-  public func downloader(_: VideoDownloader, didReceive _: URLResponse) {}
-  
-  public func downloader(_: VideoDownloader, didReceive _: Data) {}
-  
-  public func downloader(_: VideoDownloader, didFinished _: Error?) {}
 }
 
 

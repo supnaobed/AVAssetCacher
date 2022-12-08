@@ -44,12 +44,7 @@ extension AVPlayerItem {
     }
 
     var isEnoughToPlay: Bool {
-        guard
-            let url = url,
-            let configuration = try? VideoCacheManager.cachedConfiguration(for: url)
-        else { return false }
-
-        return configuration.downloadedByteCount >= 1024 * 768
+        return false
     }
 
     convenience init(loader url: URL) {
