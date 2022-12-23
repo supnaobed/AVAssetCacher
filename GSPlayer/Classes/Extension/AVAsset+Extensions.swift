@@ -8,13 +8,16 @@
 import AVFoundation
 
 public extension AVURLAsset {
-
-  static var loaderPrefix: String = "loader"
-
+  
   convenience init(url: URL, cacher: AVAssetCacher) {
-    let cacheURL = url.schemePrefix(Self.loaderPrefix) ?? url
+    let cacheURL = cacher.requestLoaderURLConverter.cachingURL(url)
     self.init(url: cacheURL)
     resourceLoader.setDelegate(cacher, queue: .main)
   }
-
+  
+  override func cancelLoading() {
+    super.cancelLoading()
+    (resourceLoader.delegate as? AVAssetCacher)?.cancelLoading(asset: self)
+  }
+  
 }

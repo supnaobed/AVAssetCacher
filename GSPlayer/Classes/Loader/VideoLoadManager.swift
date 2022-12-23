@@ -22,15 +22,18 @@ final class VideoLoadManager: NSObject {
   weak var delegate: VideoLoadManagerDelegate?
   
   public var videoCacheManager: VideoCacheManager
-  
-  init(videoCacheManager: VideoCacheManager) {
+  public var requestLoaderURLConverter: RequestLoaderURLConverter
+
+  init(videoCacheManager: VideoCacheManager, requestLoaderURLConverter: RequestLoaderURLConverter) {
     self.videoCacheManager = videoCacheManager
+    self.requestLoaderURLConverter = requestLoaderURLConverter
   }
 }
 
 extension VideoLoadManager: AVAssetResourceLoaderDelegate {
   public func resourceLoader(_: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
-    guard let url = loadingRequest.url else {
+    guard let requestUrl = loadingRequest.request.url,
+          let url = requestLoaderURLConverter.requestURL(requestUrl) else {
       reportError?(NSError(
         domain: "me.gesen.player.loader",
         code: -1,
@@ -58,12 +61,15 @@ extension VideoLoadManager: AVAssetResourceLoaderDelegate {
   }
   
   public func resourceLoader(_: AVAssetResourceLoader, didCancel loadingRequest: AVAssetResourceLoadingRequest) {
-    guard let url = loadingRequest.url, let loader = loaderMap[url] else {
+    guard let requestUrl = loadingRequest.request.url,
+          let url =  requestLoaderURLConverter.requestURL(requestUrl) ,
+          let loader = loaderMap[url] else {
       return
     }
     
     loader.remove(request: loadingRequest)
   }
+  
 }
 
 extension VideoLoadManager: VideoLoaderDelegate {
@@ -75,4 +81,13 @@ extension VideoLoadManager: VideoLoaderDelegate {
   func loaderDidFinish(_ loader: VideoLoader) {
     loaderMap.removeValue(forKey: loader.url)
   }
+  
+}
+
+extension VideoLoadManager {
+  
+  func cancelLoading(url: URL) {
+    loaderMap[url]?.cancel()
+  }
+  
 }

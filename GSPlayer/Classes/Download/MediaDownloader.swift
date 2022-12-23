@@ -10,11 +10,13 @@ import AVKit
 public class MediaDownloader {
   private var mediaTasks = [MediaDownloadTask]()
   private let videoCacheManager: VideoCacheManager
+  let requestLoaderURLConverter = RequestLoaderURLConverter()
+
   let loadManager: VideoLoadManager
 
   public init(cacheDirectoryURL: URL) throws {
     videoCacheManager = try VideoCacheManager(directory: cacheDirectoryURL)
-    loadManager = VideoLoadManager(videoCacheManager: videoCacheManager)
+    loadManager = VideoLoadManager(videoCacheManager: videoCacheManager, requestLoaderURLConverter: requestLoaderURLConverter)
     loadManager.delegate = self
   }
   
