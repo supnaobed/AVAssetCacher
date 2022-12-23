@@ -1,8 +1,8 @@
 Pod::Spec.new do |s|
   s.name         = 'AVAssetCacher'
-  s.version      = '0.1'
-  s.summary      = '⏯ Video player, support for caching, fullscreen transition and custom control view. 视频播放器，支持边下边播、全屏转场和自定义控制层'
-  s.homepage     = 'https://github.com/wxxsw/GSPlayer'
+  s.version      = '0.2'
+  s.summary      = 'Tools for caching AVAsset in AVFoundation'
+  s.homepage     = 'https://github.com/supnaobed/AVAssetCacher'
   
   s.license      = 'MIT'
   s.author       = { 'Gesen' => 'i@gesen.me', 'Dinis Ishmukhametov' => 'dinis.ish@gmail.com' }
